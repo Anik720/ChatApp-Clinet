@@ -33,6 +33,7 @@ export const SocketProvider = ({ children }) => {
     const [currentRoom, setCurrentRoom] = useState(null);
     const [conversations, setConversations] = useState({});
     const [typingIndicators, setTypingIndicators] = useState({});
+    const [infoImageApprovalData, setInfoImageApprovalData] = useState();
     const [notifyMessageOfImagesData, setNotifyMessageOfImagesData] = useState( {
         roomId: "",
         senderID: "",
@@ -58,9 +59,11 @@ export const SocketProvider = ({ children }) => {
             setRooms(rooms);
         });
         socket.on("preChat", async ({ conversation, roomId, infoImageApproval}) => {
-            console.log(61,  infoImageApproval,)
             const processedMessages = processMessages(conversation);
+            console.log(63, infoImageApproval)
             await saveConversations(roomId, processedMessages);
+
+            setInfoImageApprovalData(infoImageApproval)
             setConversations((prevConversations) => ({
                 ...prevConversations,
                 [roomId]: processedMessages
@@ -78,7 +81,6 @@ export const SocketProvider = ({ children }) => {
         });
         socket.on("setCurrentRoom", async (room) => {
             setCurrentRoom(room);
-            console.log(80, room)
             const storedConversations = await getConversations(room.roomId);
             if (storedConversations) {
                 setConversations((prevConversations) => ({
@@ -90,7 +92,6 @@ export const SocketProvider = ({ children }) => {
 
 
         socket.on("messageApprove", ({ roomId}) => {
-            console.log(114, roomId)
             setMessageApprovalStatus(true)
         });
 
@@ -205,9 +206,7 @@ export const SocketProvider = ({ children }) => {
     };
 
     const approveImagePermission = (roomId,senderid, recieverid) => {
-        console.log(189, roomId, recieverid,senderid,user?._id)
-        // message.success("Success")
-
+        
         socket.emit("imagePermission",{roomId,senderid,recieverid});
 
     };
@@ -234,7 +233,9 @@ export const SocketProvider = ({ children }) => {
                 setShowModal,
                 approveImagePermission,
                 messageApprovalStatus, 
-                setMessageApprovalStatus
+                setMessageApprovalStatus,
+                infoImageApprovalData,
+                setInfoImageApprovalData,
             }}>
             {children}
         </SocketContext.Provider>
