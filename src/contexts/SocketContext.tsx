@@ -121,9 +121,7 @@ export const SocketProvider = ({ children }) => {
   
 
         socket.on("imagePermissionApproved", ({ roomId,senderid,recieverid}) => {
-           
             setShowModal(false) 
-            console.log(118,senderid )
             message.success('Succcess'); 
   
         });

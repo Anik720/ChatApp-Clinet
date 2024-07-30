@@ -232,10 +232,6 @@ const ChatLayoutHome = ({ children }) => {
     );
   };
 
-  console.log(207, infoImageApprovalData);
-  console.log(236,   notifyMessageOfImagesData);
-  console.log(237,  user?._id);
-
   return (
     <div style={{ boxShadow: "0 0 10px rgba(0,0,0,0.1)" }}>
       <Row>

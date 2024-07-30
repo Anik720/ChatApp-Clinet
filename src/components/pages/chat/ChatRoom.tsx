@@ -184,6 +184,7 @@ const ChatRoom = ({
               images={images}
               onFinish={onFinish}
               form={form}
+              conversation={conversation}
               currentRoom={currentRoom}
             />
           ) : (
@@ -197,6 +198,7 @@ const ChatRoom = ({
                   images={images}
                   onFinish={onFinish}
                   form={form}
+                  conversation={conversation}
                   currentRoom={currentRoom}
                 />
               ) : (

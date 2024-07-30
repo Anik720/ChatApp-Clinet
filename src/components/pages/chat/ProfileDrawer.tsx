@@ -17,6 +17,7 @@ import {
 import React, { useContext, useEffect } from "react";
 import { AuthContext } from "../../../contexts/AuthContext";
 import { ThemeContext } from "../../../contexts/ThemeContext";
+import { useRouter } from "next/router";
 
 const propsInterface = {
   onClose: () => {},
@@ -29,6 +30,7 @@ const ProfileDrawer = ({
 }: typeof propsInterface = propsInterface) => {
   const { user, logout } = useContext(AuthContext);
   const { isDark, setIsDark, toggleTheme } = useContext(ThemeContext);
+  const router = useRouter()
 
   useEffect(() => {
     const darkMood = localStorage.getItem("darkMood");
@@ -39,6 +41,11 @@ const ProfileDrawer = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDark]);
+
+  const handlePendingImageApprovalList = () => {
+    router.push('/image-approval-list')
+
+  }
   return (
     <div>
       <Drawer
@@ -95,6 +102,18 @@ const ProfileDrawer = ({
             checked={isDark}
             onChange={toggleTheme}
           />
+        </Space>
+        <Divider />
+        <Space
+          style={{
+            width: "100%",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography.Text>pending Image Approval List</Typography.Text>
+          <Button icon={<LogoutOutlined />} type="text" onClick={handlePendingImageApprovalList}>
+            See All
+          </Button>
         </Space>
         <Divider />
 
