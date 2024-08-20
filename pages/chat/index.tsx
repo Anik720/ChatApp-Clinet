@@ -36,6 +36,7 @@ import Fetch from "@/utils/axios";
 import { getPublicRooms } from "@/utils/roomUtils";
 import { SOCKET_URL } from "@/utils/api";
 import { io } from "socket.io-client";
+import { useRouter } from "next/router";
 
 const ChatLayoutHome = ({ children }) => {
   const { isDark } = useTheme();
@@ -69,6 +70,7 @@ const ChatLayoutHome = ({ children }) => {
   const [leaveGroupModal, setLeaveGroupModal] = useState<boolean>(false);
   const [images, setImages] = React.useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<string>("1");
+  const router = useRouter()
 
   const scrollToBottom = () => {
     conversationEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -224,14 +226,10 @@ const ChatLayoutHome = ({ children }) => {
       setImages([]);
     }
   };
-  const handleApproveImagePermission = () => {
-    approveImagePermission(
-      currentRoom?.roomId || infoImageApprovalData?.roomId,
-      notifyMessageOfImagesData?.senderID || infoImageApprovalData?.senderId,
-      notifyMessageOfImagesData?.recieverId || infoImageApprovalData?.recieverId
-    );
-  };
 
+
+  console.log(240, currentRoom)
+  console.log(241, conversation)
   return (
     <div style={{ boxShadow: "0 0 10px rgba(0,0,0,0.1)" }}>
       <Row>
@@ -376,7 +374,7 @@ const ChatLayoutHome = ({ children }) => {
         leaveGroupModal={leaveGroupModal}
         setLeaveGroupModal={setLeaveGroupModal}
       />
-      {showModal || (infoImageApprovalData && infoImageApprovalData?.status === false) ? 
+      {/* {showModal || (infoImageApprovalData && infoImageApprovalData?.status === false) ? 
        JSON.stringify(notifyMessageOfImagesData?.senderID) === JSON.stringify(user?._id) || JSON.stringify(infoImageApprovalData?.senderId) === JSON.stringify(user?._id) ? 
           <>
             <Modal
@@ -399,10 +397,10 @@ const ChatLayoutHome = ({ children }) => {
             onOk={handleApproveImagePermission}
             onCancel={handleCancel}
           >
-            <p>Please Approve</p>
+            <p>See all</p>
           </Modal>
         
-       : null}
+       : null} */}
 
        
       {messageApprovalStatus

@@ -178,6 +178,8 @@ const ChatRoom = ({
             currentRoom={currentRoom}
           />
 
+        
+
           {!currentRoom?.isGroup ? (
             <SentForm
               setImages={setImages}
