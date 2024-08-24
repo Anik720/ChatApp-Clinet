@@ -147,6 +147,7 @@ const ChatLayoutHome = ({ children }) => {
 
   const onRoomClick = (room: any) => {
     setConversation([]);
+    localStorage.setItem("CurrentRoom",JSON.stringify(room))
     setCurrentRoom(room);
 
     if (room?.roomId) {
@@ -228,8 +229,8 @@ const ChatLayoutHome = ({ children }) => {
   };
 
 
-  console.log(240, currentRoom)
-  console.log(241, conversation)
+  // console.log(240, currentRoom)
+  // console.log(241, conversation)
   return (
     <div style={{ boxShadow: "0 0 10px rgba(0,0,0,0.1)" }}>
       <Row>
@@ -374,35 +375,7 @@ const ChatLayoutHome = ({ children }) => {
         leaveGroupModal={leaveGroupModal}
         setLeaveGroupModal={setLeaveGroupModal}
       />
-      {/* {showModal || (infoImageApprovalData && infoImageApprovalData?.status === false) ? 
-       JSON.stringify(notifyMessageOfImagesData?.senderID) === JSON.stringify(user?._id) || JSON.stringify(infoImageApprovalData?.senderId) === JSON.stringify(user?._id) ? 
-          <>
-            <Modal
-              open={
-                showModal || infoImageApprovalData?.status === false
-                  ? true
-                  : false
-              }
-              onOk={handleOk}
-              onCancel={handleCancel}
-            >
-              <p>Wait for Approval</p>
-            </Modal>
-          </>
-         : 
-          <Modal
-            open={  showModal || infoImageApprovalData?.status === false
-                ? true
-                : false}
-            onOk={handleApproveImagePermission}
-            onCancel={handleCancel}
-          >
-            <p>See all</p>
-          </Modal>
-        
-       : null} */}
-
-       
+   
       {messageApprovalStatus
         ? user?.status === "pending" && (
             <>

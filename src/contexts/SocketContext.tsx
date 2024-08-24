@@ -33,7 +33,7 @@ export const SocketProvider = ({ children }) => {
     const [currentRoom, setCurrentRoom] = useState(null);
     const [conversations, setConversations] = useState({});
     const [typingIndicators, setTypingIndicators] = useState({});
-    const [infoImageApprovalData, setInfoImageApprovalData] = useState();
+    const [infoImageApprovalData, setInfoImageApprovalData] = useState(null);
     const [notifyMessageOfImagesData, setNotifyMessageOfImagesData] = useState( {
         roomId: "",
         senderID: "",
@@ -42,8 +42,6 @@ export const SocketProvider = ({ children }) => {
 
     const [showModal, setShowModal] = useState(false);
     const [messageApprovalStatus, setMessageApprovalStatus] = useState(false);
-    const { user } = useAuth();
-
 
     useEffect(() => {
         socket.on("connect", () => {
@@ -58,9 +56,11 @@ export const SocketProvider = ({ children }) => {
         socket.on("rooms", (rooms: any) => {
             setRooms(rooms);
         });
-        socket.on("preChat", async ({ conversation, roomId, infoImageApproval}) => {
+        socket.on("preChat", async ({ conversation, roomId, infoImageApproval,curreentRoom}) => {
+            if(JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.imagesPermission?.senderID) || JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.imagesPermission?.recieverId)){
+                setShowModal(true)
+            }
             const processedMessages = processMessages(conversation);
-            console.log(63, infoImageApproval)
             await saveConversations(roomId, processedMessages);
 
             setInfoImageApprovalData(infoImageApproval)
@@ -112,11 +112,17 @@ export const SocketProvider = ({ children }) => {
         socket.on("notifyMessageOfImages", ({ roomId,
             senderID,
             recieverId }) => {
-
             setNotifyMessageOfImagesData({ roomId,
                 senderID,
                 recieverId })
-                setShowModal(true)   
+                if(JSON.parse(localStorage.getItem('CurrentRoom'))._id == roomId){
+                    if(  JSON.parse(localStorage.getItem('loggedInUser'))?._id ==  senderID || JSON.parse(localStorage.getItem('loggedInUser'))?._id == recieverId){
+                        setShowModal(true)
+                    }
+                }
+             
+
+                
         });
   
 
@@ -166,6 +172,7 @@ export const SocketProvider = ({ children }) => {
             socket.off("setCurrentRoom");
             socket.off("startTyping");
             socket.off("stopTyping");
+            // setInfoImageApprovalData(null)
             // socket.off("notifyMessageOfImages");
         };
     }, []);

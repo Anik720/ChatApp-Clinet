@@ -68,8 +68,6 @@ const SentForm = ({
     };
   }, []);
 
-  console.log(71, currentRoom)
-
   return (
     <>
       {currentRoom ? (

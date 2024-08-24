@@ -8,7 +8,7 @@ import {
   Typography,
 } from "antd";
 import moment from "moment";
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useConversation } from "../../../contexts/ConversationContext";
 import { useSocket } from "@/contexts/SocketContext";
@@ -31,9 +31,10 @@ const Conversation = ({
   const { deleteConversation, isConversationLoading } = useConversation();
   const { user } = useAuth();
   const [selectedMessage, setSelectedMessage] = React.useState<any>(null);
-  const { infoImageApprovalData, notifyMessageOfImagesData, showModal } =
+  const { infoImageApprovalData, notifyMessageOfImagesData, showModal , setShowModal} =
     useSocket();
   const router = useRouter();
+
   const items: MenuProps["items"] = [
     // {
     //   label: "Contact Info",
@@ -66,8 +67,7 @@ const Conversation = ({
     },
   ];
 
-  console.log(66, showModal, infoImageApprovalData);
-  console.log(67, notifyMessageOfImagesData);
+
   const handleApproveImagePermission = () => {
     // approveImagePermission(
     //   currentRoom?.roomId || infoImageApprovalData?.roomId,
@@ -77,6 +77,7 @@ const Conversation = ({
 
     router.push("/image-approval-list");
   };
+
 
   return (
     <div
@@ -420,7 +421,7 @@ const Conversation = ({
                   color: "black",
                 }}
               >
-                You have sent an image sent request. Please, Wait for Approval.
+                You have sent an image request. Please, Wait for Approval.
               </p>
             </>
           ) : (

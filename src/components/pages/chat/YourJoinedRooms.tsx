@@ -22,7 +22,7 @@ const propsInterface = {
 const YourJoinedRooms = ({ search, searchUser, rooms, onRoomClick, currentRoom, setSearch }: typeof propsInterface = propsInterface) => {
     const { user } = useContext(AuthContext);
     const { isTyping } = useContext(RoomContext);
-    const { typingIndicators } = useSocket();
+    const { typingIndicators,  setShowModal,setInfoImageApprovalData } = useSocket();
 
     const getTypingUsers = (roomId) => {
         const typingUsers = typingIndicators[roomId];
@@ -92,6 +92,8 @@ const YourJoinedRooms = ({ search, searchUser, rooms, onRoomClick, currentRoom, 
                                 bordered={false}
                                 onClick={() => {
                                     setSearch("");
+                                    setShowModal(false)
+                                    setInfoImageApprovalData(null)
                                     onRoomClick({
                                         roomId: item?.roomId,
                                         host: user._id,
@@ -153,6 +155,8 @@ const YourJoinedRooms = ({ search, searchUser, rooms, onRoomClick, currentRoom, 
                                 }}
                                 key={index}
                                 onClick={() => {
+                                    setShowModal(false)
+                                    setInfoImageApprovalData(null)
                                     onRoomClick({
                                         roomId: item?._id,
                                         host: user._id,

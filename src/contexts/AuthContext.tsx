@@ -69,6 +69,7 @@ export default function AuthContextProvider({ children }: any) {
             try {
                 const result = await Fetch.get("/auth/me");
                 setUser(result.data.user);
+                localStorage.setItem("loggedInUser", JSON.stringify(result.data.user))
                 resolve(result);
             } catch (error: any) {
                 console.log(error);
