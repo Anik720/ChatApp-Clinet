@@ -64,6 +64,7 @@ const ChatLayoutHome = ({ children }) => {
     setShowModal,
     approveImagePermission,
     messageApprovalStatus,
+    setMessageApprovalStatus,
     infoImageApprovalData,
     setInfoImageApprovalData,
   } = useSocket();
@@ -100,6 +101,7 @@ const ChatLayoutHome = ({ children }) => {
 
   const handleOk = () => {
     setShowModal(false);
+    router.push('/guest-user-message-request-list')
   };
 
   const handleCancel = () => {
@@ -229,7 +231,7 @@ const ChatLayoutHome = ({ children }) => {
   };
 
 
-  // console.log(240, currentRoom)
+  console.log(240, currentRoom)
   // console.log(241, conversation)
   return (
     <div style={{ boxShadow: "0 0 10px rgba(0,0,0,0.1)" }}>
@@ -382,8 +384,12 @@ const ChatLayoutHome = ({ children }) => {
               <Modal
                 title="Basic Modal"
                 open={messageApprovalStatus}
-                onOk={handleOk}
-                onCancel={handleCancel}
+                onOk={()=>{
+                  setMessageApprovalStatus(false)
+                }}
+                onCancel={()=>{
+                  setMessageApprovalStatus(false)
+                }}
               >
                 <p>Wait for permission</p>
               </Modal>

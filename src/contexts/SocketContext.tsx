@@ -215,6 +215,11 @@ export const SocketProvider = ({ children }) => {
         socket.emit("imagePermission",{roomId,senderid,recieverid});
 
     };
+    const approveGuestUserMessageRequestPermission = (roomId,senderid, recieverid) => {
+        
+        socket.emit("guestUserMessageApprovalPermission",{roomId,senderid,recieverid});
+
+    };
 
     return (
         <SocketContext.Provider
@@ -241,6 +246,7 @@ export const SocketProvider = ({ children }) => {
                 setMessageApprovalStatus,
                 infoImageApprovalData,
                 setInfoImageApprovalData,
+                approveGuestUserMessageRequestPermission,
             }}>
             {children}
         </SocketContext.Provider>
