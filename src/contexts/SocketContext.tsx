@@ -6,7 +6,8 @@ import { initDB, saveConversations, getConversations } from "@/utils/indexedDB";
 import { Button, message } from 'antd';
 import { io } from "socket.io-client";
 import { useAuth } from "./AuthContext";
-const socket:any = io(SOCKET_URL, {
+import Fetch from "@/utils/axios";
+export const socket:any = io(SOCKET_URL, {
     transports: ["websocket"]
 });
 const SocketContext = createContext(null);
@@ -34,6 +35,7 @@ export const SocketProvider = ({ children }) => {
     const [conversations, setConversations] = useState({});
     const [typingIndicators, setTypingIndicators] = useState({});
     const [infoImageApprovalData, setInfoImageApprovalData] = useState(null);
+    const [infoMessageApprovalData, setInfoMessageApprovalData] = useState(null);
     const [notifyMessageOfImagesData, setNotifyMessageOfImagesData] = useState( {
         roomId: "",
         senderID: "",
@@ -41,7 +43,12 @@ export const SocketProvider = ({ children }) => {
       });
 
     const [showModal, setShowModal] = useState(false);
-    const [messageApprovalStatus, setMessageApprovalStatus] = useState(false);
+    const [messageApprovalStatus, setMessageApprovalStatus] = useState({
+        status: false,
+        roomId: "", 
+        senderId : '',
+        recieverId : ''
+    });
 
     useEffect(() => {
         socket.on("connect", () => {
@@ -54,16 +61,21 @@ export const SocketProvider = ({ children }) => {
             setConversations([]);
         });
         socket.on("rooms", (rooms: any) => {
+            console.log("rooms", rooms);
             setRooms(rooms);
         });
-        socket.on("preChat", async ({ conversation, roomId, infoImageApproval,curreentRoom}) => {
+        socket.on("preChat", async ({ conversation, roomId, infoImageApproval,curreentRoom, infoMessageApproval}) => {
             if(JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.imagesPermission?.senderID) || JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.imagesPermission?.recieverId)){
                 setShowModal(true)
             }
+            // if(JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.messagePermission?.senderID) || JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.messagePermission?.recieverId)){
+            //     setMessageApprovalStatus(true)
+            // }
             const processedMessages = processMessages(conversation);
             await saveConversations(roomId, processedMessages);
 
             setInfoImageApprovalData(infoImageApproval)
+            // setInfoMessageApprovalData (infoMessageApproval)
             setConversations((prevConversations) => ({
                 ...prevConversations,
                 [roomId]: processedMessages
@@ -91,8 +103,23 @@ export const SocketProvider = ({ children }) => {
         });
 
 
-        socket.on("messageApprove", ({ roomId}) => {
-            setMessageApprovalStatus(true)
+        socket.on("messageApprove",async ({ roomId,senderId, recieverId}) => {
+            setMessageApprovalStatus({
+                status: false,
+                roomId: roomId ,
+                senderId : senderId,
+                recieverId : recieverId
+            })
+            if(  JSON.parse(localStorage.getItem('loggedInUser'))?._id ==  recieverId ){
+                console.log(106, roomId)
+           
+                const res = await Fetch.get("/room/all-rooms");
+                if (res?.data?.success) {
+                  socket.emit("rooms", res?.data?.rooms);
+                  // setRooms(res?.data?.rooms);
+                }
+            }
+          
         });
 
 
@@ -129,6 +156,17 @@ export const SocketProvider = ({ children }) => {
         socket.on("imagePermissionApproved", ({ roomId,senderid,recieverid}) => {
             setShowModal(false) 
             message.success('Succcess'); 
+  
+        });
+        socket.on("guestUserMessageRequestApproved", ({ roomId,senderid,recieverid}) => {
+            setMessageApprovalStatus({
+                status: true,
+                roomId: roomId ,
+                senderId : senderid,
+                recieverId : recieverid
+            }) 
+   
+            // message.success('Succcess'); 
   
         });
 
@@ -215,8 +253,7 @@ export const SocketProvider = ({ children }) => {
         socket.emit("imagePermission",{roomId,senderid,recieverid});
 
     };
-    const approveGuestUserMessageRequestPermission = (roomId,senderid, recieverid) => {
-        
+    const approveGuestUserMessageRequestPermission = (roomId,senderid, recieverid) => { 
         socket.emit("guestUserMessageApprovalPermission",{roomId,senderid,recieverid});
 
     };
@@ -227,6 +264,7 @@ export const SocketProvider = ({ children }) => {
                 socket,
                 isConnected,
                 rooms,
+                setRooms,
                 joinRoom,
                 leaveRoom,
                 conversations,
@@ -247,11 +285,14 @@ export const SocketProvider = ({ children }) => {
                 infoImageApprovalData,
                 setInfoImageApprovalData,
                 approveGuestUserMessageRequestPermission,
+                infoMessageApprovalData,
+                setInfoMessageApprovalData
             }}>
             {children}
         </SocketContext.Provider>
     );
 };
+
 
 export const useSocket = () => {
     if (!SocketContext) {

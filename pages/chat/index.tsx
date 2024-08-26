@@ -62,11 +62,8 @@ const ChatLayoutHome = ({ children }) => {
     notifyMessageOfImagesData,
     showModal,
     setShowModal,
-    approveImagePermission,
     messageApprovalStatus,
     setMessageApprovalStatus,
-    infoImageApprovalData,
-    setInfoImageApprovalData,
   } = useSocket();
   const [leaveGroupModal, setLeaveGroupModal] = useState<boolean>(false);
   const [images, setImages] = React.useState<any[]>([]);
@@ -231,7 +228,7 @@ const ChatLayoutHome = ({ children }) => {
   };
 
 
-  console.log(240, currentRoom)
+  console.log(24000, messageApprovalStatus)
   // console.log(241, conversation)
   return (
     <div style={{ boxShadow: "0 0 10px rgba(0,0,0,0.1)" }}>
@@ -378,7 +375,7 @@ const ChatLayoutHome = ({ children }) => {
         setLeaveGroupModal={setLeaveGroupModal}
       />
    
-      {messageApprovalStatus
+      {messageApprovalStatus?.status == false && messageApprovalStatus?.senderId == user?._id
         ? user?.status === "pending" && (
             <>
               <Modal
@@ -396,7 +393,7 @@ const ChatLayoutHome = ({ children }) => {
             </>
           )
         : null}
-      {messageApprovalStatus
+      {/* {messageApprovalStatus
         ? user?.status === "active" && (
             <>
               <Modal
@@ -409,7 +406,7 @@ const ChatLayoutHome = ({ children }) => {
               </Modal>
             </>
           )
-        : null}
+        : null} */}
     </div>
   );
 };

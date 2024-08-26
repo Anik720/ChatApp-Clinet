@@ -13,13 +13,6 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import Link from "next/link";
-import {
-  DeleteOutlined,
-  DownOutlined,
-  DownloadOutlined,
-  StopOutlined,
-} from "@ant-design/icons";
 import { AdminUserContext } from "@/contexts/admin/AdminUserContext";
 import UserLayoutsApproval from "@/components/layout/UserLayoutsApproval";
 import Fetch from "@/utils/axios";
