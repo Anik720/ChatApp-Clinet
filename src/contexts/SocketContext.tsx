@@ -31,6 +31,7 @@ const processMessages = (messages) => {
 export const SocketProvider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(socket.connected);
     const [rooms, setRooms] = useState([]);
+    const [roomsCopy, setRoomsCopy] = useState([]);
     const [currentRoom, setCurrentRoom] = useState(null);
     const [conversations, setConversations] = useState({});
     const [typingIndicators, setTypingIndicators] = useState({});
@@ -63,6 +64,9 @@ export const SocketProvider = ({ children }) => {
         socket.on("rooms", (rooms: any) => {
             console.log("rooms", rooms);
             setRooms(rooms);
+            if(rooms?.length > 0){
+                setRoomsCopy(rooms)
+            }
         });
         socket.on("preChat", async ({ conversation, roomId, infoImageApproval,curreentRoom, infoMessageApproval}) => {
             if(JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.imagesPermission?.senderID) || JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.imagesPermission?.recieverId)){
@@ -103,7 +107,8 @@ export const SocketProvider = ({ children }) => {
         });
 
 
-        socket.on("messageApprove",async ({ roomId,senderId, recieverId}) => {
+
+        socket.on("messageApprove",async ({ roomId,senderId, recieverId,room, senderInfo, recieverInfo}) => {
             setMessageApprovalStatus({
                 status: false,
                 roomId: roomId ,
@@ -111,13 +116,12 @@ export const SocketProvider = ({ children }) => {
                 recieverId : recieverId
             })
             if(  JSON.parse(localStorage.getItem('loggedInUser'))?._id ==  recieverId ){
-                console.log(106, roomId)
-           
-                const res = await Fetch.get("/room/all-rooms");
-                if (res?.data?.success) {
-                  socket.emit("rooms", res?.data?.rooms);
-                  // setRooms(res?.data?.rooms);
-                }
+
+                room.members = [senderInfo,recieverInfo]
+                let modifiedRooms = [...roomsCopy,room]
+        
+                socket.emit("rooms", modifiedRooms);
+
             }
           
         });

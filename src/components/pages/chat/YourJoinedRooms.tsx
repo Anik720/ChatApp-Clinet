@@ -1,5 +1,5 @@
 import { socket, useSocket } from "@/contexts/SocketContext";
-import { Avatar, Badge, Button, Card, Divider, Space, Typography } from "antd";
+import { Avatar, Badge, Button, Card, Divider, Skeleton, Space, Typography } from "antd";
 import isEmpty from "lodash/isEmpty";
 import { useContext } from "react";
 import { AuthContext } from "../../../contexts/AuthContext";
@@ -79,19 +79,35 @@ const YourJoinedRooms = ({
     // }
   };
 
-  const handleApproveImagePermission = async (item) => {
+  const handleApproveImagePermission = async (targetItem) => {
     approveGuestUserMessageRequestPermission(
-      item._id,
-      item.messagePermission?.senderID,
-      item.messagePermission?.recieverId
+      targetItem._id,
+      targetItem.messagePermission?.senderID,
+      targetItem.messagePermission?.recieverId
     );
-    const res = await Fetch.get("/room/all-rooms");
-    if (res?.data?.success) {
-      socket.emit("rooms", res?.data?.rooms);
-      // setRooms(res?.data?.rooms);
-    }
+    // const res = await Fetch.get("/room/all-rooms");
+   let modifiedRooms = rooms.map(item => {
+      if (targetItem._id === item._id) {
+          return {
+              ...item,
+              messagePermission: {
+                  ...item.messagePermission,
+                  active: true,
+                  senderID: targetItem.messagePermission?.senderID,
+                  recieverId: targetItem.messagePermission?.recieverId
+              }
+          };
+      }
+      return item;
+  });
+    // if (res?.data?.success) {
+    //   socket.emit("rooms", res?.data?.rooms);
+    //   // setRooms(res?.data?.rooms);
+    // }
+    console.log(94, modifiedRooms)
+    setRooms(modifiedRooms);
   };
-console.log(94, messageApprovalStatus)
+
   return (
     <div
       style={{
@@ -178,7 +194,8 @@ console.log(94, messageApprovalStatus)
       )}
       {!search && (
         <>
-          {rooms?.map((item: any, index: any) => {
+          { rooms?.length > 0 ?   
+          rooms?.map((item: any, index: any) => {
             // console.log("item", item);
             return (
               <div
@@ -213,20 +230,20 @@ console.log(94, messageApprovalStatus)
                     size={"large"}
                     style={{
                       backgroundColor: getColor(
-                        item.isGroup
+                        item?.isGroup
                           ? item?.name[0].toLowerCase()
                           : item?.members.map((member: any) => {
                               if (member?._id !== user?._id) {
                                 // return member.name[0].toLowerCase();
-                                return member.name
+                                return member?.name
                                   ? member.name[0].toLowerCase()
-                                  : member.nickName[0].toLowerCase();
+                                  : member?.nickName[0]?.toLowerCase();
                               }
                             })
                       ),
                     }}
                   >
-                    {item.isGroup
+                    {item?.isGroup
                       ? item?.name?.charAt(0)
                       : item?.members.map((member: any) => {
                           if (member?._id !== user?._id) {
@@ -327,7 +344,57 @@ console.log(94, messageApprovalStatus)
                 </div>
               </div>
             );
-          })}
+          }) 
+          :
+          <>
+          <Divider
+            style={{
+              margin: "5px",
+            }}
+          />
+          {[...Array(5)].map((_, index) => (
+            <div
+              key={index}
+              style={{
+                width: "98%",
+              }}
+            >
+              <Card
+                size="small"
+                hoverable
+                bordered={false}
+              >
+                <Space
+                  style={{
+                    display: "flex",
+                    gap: "15px",
+                    padding: "10px",
+                  }}
+                >
+                  <Skeleton.Avatar active size={"large"} />
+                  <Space
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <Skeleton.Input active size="small" style={{ width: 100 }} />
+                    <Skeleton.Input active size="small" style={{ width: 60, marginTop: 5 }} />
+                  </Space>
+                </Space>
+              </Card>
+              <Divider
+                style={{
+                  margin: "5px",
+                }}
+              />
+            </div>
+          ))}
+        </>
+        
+        }
         </>
       )}
     </div>
