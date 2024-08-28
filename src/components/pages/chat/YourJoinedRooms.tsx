@@ -1,5 +1,5 @@
 import { socket, useSocket } from "@/contexts/SocketContext";
-import { Avatar, Badge, Button, Card, Divider, Skeleton, Space, Typography } from "antd";
+import { Avatar, Badge, Button, Card, Divider, List, Skeleton, Space, Typography } from "antd";
 import isEmpty from "lodash/isEmpty";
 import { useContext } from "react";
 import { AuthContext } from "../../../contexts/AuthContext";
@@ -12,12 +12,12 @@ const propsInterface = {
   search: "",
   searchUser: [],
   rooms: [],
-  onRoomClick: (data: any) => {},
+  onRoomClick: (data: any) => { },
   currentRoom: {
     _id: "",
     roomId: "",
   },
-  setSearch: (data: string) => {},
+  setSearch: (data: string) => { },
 };
 
 const YourJoinedRooms = ({
@@ -37,6 +37,9 @@ const YourJoinedRooms = ({
     messageApprovalStatus,
     setRooms,
     approveGuestUserMessageRequestPermission,
+    loadingStatusMessageApproval,
+    setLoadingStatusMessageApproval
+
   } = useSocket();
 
   const getTypingUsers = (roomId) => {
@@ -80,26 +83,27 @@ const YourJoinedRooms = ({
   };
 
   const handleApproveImagePermission = async (targetItem) => {
+    setLoadingStatusMessageApproval(true)
     approveGuestUserMessageRequestPermission(
       targetItem._id,
       targetItem.messagePermission?.senderID,
       targetItem.messagePermission?.recieverId
     );
     // const res = await Fetch.get("/room/all-rooms");
-   let modifiedRooms = rooms.map(item => {
+    let modifiedRooms = rooms.map(item => {
       if (targetItem._id === item._id) {
-          return {
-              ...item,
-              messagePermission: {
-                  ...item.messagePermission,
-                  active: true,
-                  senderID: targetItem.messagePermission?.senderID,
-                  recieverId: targetItem.messagePermission?.recieverId
-              }
-          };
+        return {
+          ...item,
+          messagePermission: {
+            ...item.messagePermission,
+            active: true,
+            senderID: targetItem.messagePermission?.senderID,
+            recieverId: targetItem.messagePermission?.recieverId
+          }
+        };
       }
       return item;
-  });
+    });
     // if (res?.data?.success) {
     //   socket.emit("rooms", res?.data?.rooms);
     //   // setRooms(res?.data?.rooms);
@@ -108,296 +112,354 @@ const YourJoinedRooms = ({
     setRooms(modifiedRooms);
   };
 
+  console.log(111, rooms)
+  const data = [1, 2, 3, 4];
   return (
-    <div
-      style={{
-        scrollSnapType: "y mandatory",
-        overflowY: "auto",
-        overflowX: "hidden",
-        height: "82vh",
-        marginTop: "10px",
-      }}
-    >
-      {search && (
-        <>
-          <Divider
-            style={{
-              margin: "5px",
-            }}
-          />
-          {searchUser.map((item: any) => (
-            <div
-              key={item._id}
+    <>
+      {
+        loadingStatusMessageApproval ?
+
+          <>
+            <Divider
               style={{
-                width: "98%",
+                margin: "5px",
               }}
-            >
-              <Card
-                size="small"
-                hoverable
-                bordered={false}
-               
+            />
+            {[...Array(5)].map((_, index) => (
+              <div
+                key={index}
+                style={{
+                  width: "98%",
+                }}
               >
-                <Space
-                  style={{
-                    display: "flex",
-                    gap: "15px",
-                    padding: "10px",
-                  }}
-                  onClick={() => {
-                    setSearch("");
-                    setShowModal(false);
-                    setInfoImageApprovalData(null);
-                    onRoomClick({
-                      roomId: item?.roomId,
-                      host: user._id,
-                      members: [user._id, item._id],
-                      user: item,
-                    });
-                  }}
+                <Card
+                  size="small"
+                  hoverable
+                  bordered={false}
                 >
-                  <Avatar size={"large"} />
                   <Space
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "flex-start",
+                      gap: "15px",
+                      padding: "10px",
                     }}
                   >
-                    <Typography.Text
+                    <Skeleton.Avatar active size={"large"} />
+                    <Space
                       style={{
-                        fontWeight: "bold",
-                        lineHeight: "0",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "flex-start",
                       }}
                     >
-                      {item.name}
-                    </Typography.Text>
-                    <Typography.Text
-                      style={{
-                        lineHeight: "0",
-                      }}
-                    >
-                      {item.nickName}
-                    </Typography.Text>
+                      <Skeleton.Input active size="small" style={{ width: 100 }} />
+                      <Skeleton.Input active size="small" style={{ width: 60, marginTop: 5 }} />
+                    </Space>
                   </Space>
-                </Space>
-              </Card>
-              <Divider
-                style={{
-                  margin: "5px",
-                }}
-              />
-            </div>
-          ))}
-        </>
-      )}
-      {!search && (
-        <>
-          { rooms?.length > 0 ?   
-          rooms?.map((item: any, index: any) => {
-            // console.log("item", item);
-            return (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  backgroundColor:
-                    item._id === currentRoom?.roomId ? "#F0F2F5" : "",
-                  width: "100%",
-                  justifyContent: "space-between",
-                  padding: "10px",
-                }}
-                key={index}
-             
-              >
-                <Space
+                </Card>
+                <Divider
                   style={{
-                    cursor: "pointer",
+                    margin: "5px",
                   }}
-                  onClick={() => {
-                    setShowModal(false);
-                    setInfoImageApprovalData(null);
-                    onRoomClick({
-                      roomId: item?._id,
-                      host: user._id,
-                      members: [user?._id, item?.members],
-                      ...item,
-                    });
+                />
+              </div>
+            ))}
+          </>
+          :
+          <div
+            style={{
+              scrollSnapType: "y mandatory",
+              overflowY: "auto",
+              overflowX: "hidden",
+              height: "82vh",
+              marginTop: "10px",
+            }}
+          >
+            {search && (
+              <>
+                <Divider
+                  style={{
+                    margin: "5px",
                   }}
-                >
-                  <Avatar
-                    size={"large"}
-                    style={{
-                      backgroundColor: getColor(
-                        item?.isGroup
-                          ? item?.name[0].toLowerCase()
-                          : item?.members.map((member: any) => {
-                              if (member?._id !== user?._id) {
-                                // return member.name[0].toLowerCase();
-                                return member?.name
-                                  ? member.name[0].toLowerCase()
-                                  : member?.nickName[0]?.toLowerCase();
-                              }
-                            })
-                      ),
-                    }}
-                  >
-                    {item?.isGroup
-                      ? item?.name?.charAt(0)
-                      : item?.members.map((member: any) => {
-                          if (member?._id !== user?._id) {
-                            return (
-                              member.name?.charAt(0).toUpperCase() ||
-                              member.nickName?.charAt(0).toUpperCase()
-                            );
-                          }
-                        })}
-                  </Avatar>
+                />
+                {searchUser.map((item: any) => (
                   <div
+                    key={item._id}
                     style={{
-                      marginLeft: "10px",
+                      width: "98%",
                     }}
                   >
-                    <Typography.Text
-                      style={{
-                        fontWeight: "bold",
-                      }}
+                    <Card
+                      size="small"
+                      hoverable
+                      bordered={false}
+
                     >
-                      {item.isGroup
-                        ? item?.name
-                        : item?.members.map((member: any) => {
-                            if (member?._id !== user?._id) {
-                              return member.name || member.nickName;
-                            }
-                          })}
-                    </Typography.Text>{" "}
-                    <br />
-                    <Typography.Text
-                      type={
-                        item?.lastConversation?.status === "sent" ||
-                        item?.host?._id === user?._id
-                          ? "secondary"
-                          : "success"
-                      }
-                      strong={
-                        item?.lastConversation?.status !== "seen" ? true : false
-                      }
-                      style={{
-                        fontSize: 12,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        width: "100%",
-                      }}
-                    >
-                      {renderLastMessage(item)}
-                    </Typography.Text>
-                  </div>
-                </Space>
-                <div>
-                  <div className="d-flex justify-center items-center">
-                    <Space>
-                      {item?.unseenMessageCount !== 0 &&
-                        item?.lastConversation?.from?._id !== user?._id && (
-                          <Badge color="teal" size={"small"} />
-                        )}
-                      <Typography.Text
+                      <Space
                         style={{
-                          fontSize: 10,
-                          color: "#808080",
-                          marginLeft: "10px",
+                          display: "flex",
+                          gap: "15px",
+                          padding: "10px",
+                        }}
+                        onClick={() => {
+                          setSearch("");
+                          setShowModal(false);
+                          setInfoImageApprovalData(null);
+                          onRoomClick({
+                            roomId: item?.roomId,
+                            host: user._id,
+                            members: [user._id, item._id],
+                            user: item,
+                          });
                         }}
                       >
-                        {AgoTimeCount(item?.lastConversation?.created_at)}
-                      </Typography.Text>
-                    </Space>
+                        <Avatar size={"large"} />
+                        <Space
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "flex-start",
+                          }}
+                        >
+                          <Typography.Text
+                            style={{
+                              fontWeight: "bold",
+                              lineHeight: "0",
+                            }}
+                          >
+                            {item.name}
+                          </Typography.Text>
+                          <Typography.Text
+                            style={{
+                              lineHeight: "0",
+                            }}
+                          >
+                            {item.nickName}
+                          </Typography.Text>
+                        </Space>
+                      </Space>
+                    </Card>
+                    <Divider
+                      style={{
+                        margin: "5px",
+                      }}
+                    />
                   </div>
+                ))}
+              </>
+            )}
+            {!search && (
+              <>
+                {rooms?.length > 0 ?
+                  rooms?.map((item: any, index: any) => {
+                    // console.log("item", item);
+                    return (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          backgroundColor:
+                            item._id === currentRoom?.roomId ? "#F0F2F5" : "",
+                          width: "100%",
+                          justifyContent: "space-between",
+                          padding: "10px",
+                        }}
+                        key={index}
 
-                  {(messageApprovalStatus?.roomId == item?._id) ||
-                  (item?.messagePermission?.recieverId == user?._id &&
-                    item?.messagePermission?.active == false)
-                    ? user?.status === "active" && (
-                        <>
-                          <Button
-                            type="primary"
-                            size="small"
-                            onClick={() => {
-                              //   showApprovalModal(item);
-                              handleApproveImagePermission(item);
+                      >
+                        <Space
+                          style={{
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            setShowModal(false);
+                            setInfoImageApprovalData(null);
+                            onRoomClick({
+                              roomId: item?._id,
+                              host: user._id,
+                              members: [user?._id, item?.members],
+                              ...item,
+                            });
+                          }}
+                        >
+                          <Avatar
+                            size={"large"}
+                            style={{
+                              backgroundColor: getColor(
+                                item?.isGroup
+                                  ? item?.name[0].toLowerCase()
+                                  : item?.members.map((member: any) => {
+                                    if (member?._id !== user?._id) {
+                                      // return member.name[0].toLowerCase();
+                                      return member?.name
+                                        ? member.name[0].toLowerCase()
+                                        : member?.nickName[0]?.toLowerCase();
+                                    }
+                                  })
+                              ),
                             }}
                           >
-                            Approve
-                          </Button>
-                          {/* <Button
-                            type="primary"
-                            size="small"
-                            onClick={() => {
-                              showRejectModal(item);
+                            {item?.isGroup
+                              ? item?.name?.charAt(0)
+                              : item?.members.map((member: any) => {
+                                if (member?._id !== user?._id) {
+                                  return (
+                                    member.name?.charAt(0).toUpperCase() ||
+                                    member.nickName?.charAt(0).toUpperCase()
+                                  );
+                                }
+                              })}
+                          </Avatar>
+                          <div
+                            style={{
+                              marginLeft: "10px",
                             }}
                           >
-                            Reject
-                          </Button> */}
-                        </>
-                      )
-                    : null}
-                </div>
-              </div>
-            );
-          }) 
-          :
-          <>
-          <Divider
-            style={{
-              margin: "5px",
-            }}
-          />
-          {[...Array(5)].map((_, index) => (
-            <div
-              key={index}
-              style={{
-                width: "98%",
-              }}
-            >
-              <Card
-                size="small"
-                hoverable
-                bordered={false}
-              >
-                <Space
-                  style={{
-                    display: "flex",
-                    gap: "15px",
-                    padding: "10px",
-                  }}
-                >
-                  <Skeleton.Avatar active size={"large"} />
-                  <Space
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    <Skeleton.Input active size="small" style={{ width: 100 }} />
-                    <Skeleton.Input active size="small" style={{ width: 60, marginTop: 5 }} />
-                  </Space>
-                </Space>
-              </Card>
-              <Divider
-                style={{
-                  margin: "5px",
-                }}
-              />
-            </div>
-          ))}
-        </>
-        
-        }
-        </>
-      )}
-    </div>
+                            <Typography.Text
+                              style={{
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {item.isGroup
+                                ? item?.name
+                                : item?.members.map((member: any) => {
+                                  if (member?._id !== user?._id) {
+                                    return member.name || member.nickName;
+                                  }
+                                })}
+                            </Typography.Text>{" "}
+                            <br />
+                            <Typography.Text
+                              type={
+                                item?.lastConversation?.status === "sent" ||
+                                  item?.host?._id === user?._id
+                                  ? "secondary"
+                                  : "success"
+                              }
+                              strong={
+                                item?.lastConversation?.status !== "seen" ? true : false
+                              }
+                              style={{
+                                fontSize: 12,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                width: "100%",
+                              }}
+                            >
+                              {renderLastMessage(item)}
+                            </Typography.Text>
+                          </div>
+                        </Space>
+                        <div>
+                          <div className="d-flex justify-center items-center">
+                            <Space>
+                              {item?.unseenMessageCount !== 0 &&
+                                item?.lastConversation?.from?._id !== user?._id && (
+                                  <Badge color="teal" size={"small"} />
+                                )}
+                              <Typography.Text
+                                style={{
+                                  fontSize: 10,
+                                  color: "#808080",
+                                  marginLeft: "10px",
+                                }}
+                              >
+                                {AgoTimeCount(item?.lastConversation?.created_at)}
+                              </Typography.Text>
+                            </Space>
+                          </div>
+
+                          {(messageApprovalStatus?.roomId == item?._id) ||
+                            (item?.messagePermission?.recieverId == user?._id &&
+                              item?.messagePermission?.active == false)
+                            ? user?.status === "active" && (
+                              <>
+                                <Button
+                                  type="primary"
+                                  size="small"
+                                  onClick={() => {
+                                    //   showApprovalModal(item);
+                                    handleApproveImagePermission(item);
+                                  }}
+                                >
+                                  Approve
+                                </Button>
+                                {/* <Button
+                        type="primary"
+                        size="small"
+                        onClick={() => {
+                          showRejectModal(item);
+                        }}
+                      >
+                        Reject
+                      </Button> */}
+                              </>
+                            )
+                            : null}
+                        </div>
+                      </div>
+                    );
+                  })
+                  :
+                  <>
+                    <Divider
+                      style={{
+                        margin: "5px",
+                      }}
+                    />
+                    {[...Array(5)].map((_, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          width: "98%",
+                        }}
+                      >
+                        <Card
+                          size="small"
+                          hoverable
+                          bordered={false}
+                        >
+                          <Space
+                            style={{
+                              display: "flex",
+                              gap: "15px",
+                              padding: "10px",
+                            }}
+                          >
+                            <Skeleton.Avatar active size={"large"} />
+                            <Space
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <Skeleton.Input active size="small" style={{ width: 100 }} />
+                              <Skeleton.Input active size="small" style={{ width: 60, marginTop: 5 }} />
+                            </Space>
+                          </Space>
+                        </Card>
+                        <Divider
+                          style={{
+                            margin: "5px",
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </>
+
+                }
+              </>
+            )}
+          </div>
+
+      }
+    </>
+
   );
 };
 

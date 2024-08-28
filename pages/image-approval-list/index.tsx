@@ -2,24 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   Button,
   Card,
-  Dropdown,
-  Menu,
   Modal,
-  Popconfirm,
   Select,
   Space,
   Table,
-  Tag,
-  Tooltip,
   Typography,
 } from "antd";
-import Link from "next/link";
-import {
-  DeleteOutlined,
-  DownOutlined,
-  DownloadOutlined,
-  StopOutlined,
-} from "@ant-design/icons";
+
 import { AdminUserContext } from "@/contexts/admin/AdminUserContext";
 import UserLayoutsApproval from "@/components/layout/UserLayoutsApproval";
 import Fetch from "@/utils/axios";
@@ -31,8 +20,6 @@ const imageApproval = () => {
     getUsers,
     adminUsers,
     isAdminUsersLoading,
-    bannedUser,
-    unBannedUser,
   } = useContext(AdminUserContext);
   const [allData, setAllData] = useState<any>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -43,20 +30,19 @@ const imageApproval = () => {
     approveImagePermission,
 
   } = useSocket();
+  const func = async () => {
+    if (user) {
+      const result = await Fetch.get(
+        `/room/get-image-approval-list?userId=${user?._id}`
+      );
 
+      setAllData(result?.data?.list);
+    }
+  };
   useEffect(() => {
-    const func = async () => {
-      if (user) {
-        const result = await Fetch.get(
-          `/room/get-image-approval-list?userId=${user?._id}`
-        );
-
-        setAllData(result?.data?.list);
-      }
-    };
     func();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user,allData]);
 
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {
     const data = {
@@ -68,6 +54,7 @@ const imageApproval = () => {
   };
 
   const handleApproveImagePermission = () => {
+    func();
     if (currentApprovalData) {
       approveImagePermission(
         currentApprovalData.roomId,

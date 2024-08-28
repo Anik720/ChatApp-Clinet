@@ -78,6 +78,8 @@ const Conversation = ({
     router.push("/image-approval-list");
   };
 
+  console.log(81, currentRoom?.roomId)
+
 
   return (
     <div
@@ -99,7 +101,7 @@ const Conversation = ({
           margin: "30px 0px",
         }}
       >
-        {conversation?.length === 0 && (
+        {/* {conversation?.length === 0 && (
           <div
             style={{
               textAlign: "center",
@@ -108,7 +110,7 @@ const Conversation = ({
           >
             <Typography.Text>No messages yet</Typography.Text>
           </div>
-        )}
+        )} */}
         {currentRoom?.roomId ? (
           conversation?.length > 0 ? (
             conversation?.map((item: any) => {
@@ -401,7 +403,7 @@ const Conversation = ({
                 textAlign: "center",
               }}
             >
-              <h1>Please Wait ...</h1>
+              <h1 style={{fontSize:"20px"}}>No messages yet to show . . .</h1>
             </div>
           )
         ) : null}

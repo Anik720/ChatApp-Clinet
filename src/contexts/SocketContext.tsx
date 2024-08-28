@@ -50,6 +50,7 @@ export const SocketProvider = ({ children }) => {
         senderId : '',
         recieverId : ''
     });
+    const [loadingStatusMessageApproval, setLoadingStatusMessageApproval] = useState(false);
 
     useEffect(() => {
         socket.on("connect", () => {
@@ -63,10 +64,15 @@ export const SocketProvider = ({ children }) => {
         });
         socket.on("rooms", (rooms: any) => {
             console.log("rooms", rooms);
+            let allRooms = JSON.parse(localStorage.getItem('rooms')) 
             setRooms(rooms);
-            if(rooms?.length > 0){
-                setRoomsCopy(rooms)
+            if(rooms?.length > 1){
+               localStorage.setItem("rooms",JSON.stringify(rooms))
             }
+            if(allRooms?.length > 1){
+                setRooms(allRooms);
+            }
+
         });
         socket.on("preChat", async ({ conversation, roomId, infoImageApproval,curreentRoom, infoMessageApproval}) => {
             if(JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.imagesPermission?.senderID) || JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.imagesPermission?.recieverId)){
@@ -116,11 +122,12 @@ export const SocketProvider = ({ children }) => {
                 recieverId : recieverId
             })
             if(  JSON.parse(localStorage.getItem('loggedInUser'))?._id ==  recieverId ){
+                let allRooms = JSON.parse(localStorage.getItem('rooms')) 
 
                 room.members = [senderInfo,recieverInfo]
-                let modifiedRooms = [...roomsCopy,room]
-        
+                let modifiedRooms = [...allRooms, room]
                 socket.emit("rooms", modifiedRooms);
+                // setRooms(modifiedRooms)
 
             }
           
@@ -143,6 +150,7 @@ export const SocketProvider = ({ children }) => {
         socket.on("notifyMessageOfImages", ({ roomId,
             senderID,
             recieverId }) => {
+                console.log(153, JSON.parse(localStorage.getItem('CurrentRoom'))._id == roomId)
             setNotifyMessageOfImagesData({ roomId,
                 senderID,
                 recieverId })
@@ -151,24 +159,26 @@ export const SocketProvider = ({ children }) => {
                         setShowModal(true)
                     }
                 }
-             
-
-                
+       
         });
   
 
-        socket.on("imagePermissionApproved", ({ roomId,senderid,recieverid}) => {
+        socket.on("imagePermissionApproved", ({ roomId,senderid,recieverid,infoImageApproval}) => {
             setShowModal(false) 
             message.success('Succcess'); 
+            setInfoImageApprovalData(infoImageApproval)
+            localStorage.setItem("rooms",JSON.stringify([]))
   
         });
         socket.on("guestUserMessageRequestApproved", ({ roomId,senderid,recieverid}) => {
+           
             setMessageApprovalStatus({
                 status: true,
                 roomId: roomId ,
                 senderId : senderid,
                 recieverId : recieverid
             }) 
+            setLoadingStatusMessageApproval(false)
    
             // message.success('Succcess'); 
   
@@ -252,11 +262,11 @@ export const SocketProvider = ({ children }) => {
         socket.emit("stopTyping", { roomId });
     };
 
-    const approveImagePermission = (roomId,senderid, recieverid) => {
-        
+    const approveImagePermission = (roomId,senderid, recieverid) => { 
         socket.emit("imagePermission",{roomId,senderid,recieverid});
-
     };
+
+
     const approveGuestUserMessageRequestPermission = (roomId,senderid, recieverid) => { 
         socket.emit("guestUserMessageApprovalPermission",{roomId,senderid,recieverid});
 
@@ -290,7 +300,9 @@ export const SocketProvider = ({ children }) => {
                 setInfoImageApprovalData,
                 approveGuestUserMessageRequestPermission,
                 infoMessageApprovalData,
-                setInfoMessageApprovalData
+                setInfoMessageApprovalData,
+                loadingStatusMessageApproval,
+                setLoadingStatusMessageApproval
             }}>
             {children}
         </SocketContext.Provider>
