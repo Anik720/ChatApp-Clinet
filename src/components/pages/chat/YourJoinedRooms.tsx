@@ -110,7 +110,7 @@ const YourJoinedRooms = ({
     // }
     setRooms(modifiedRooms);
   };
-
+console.log(113, searchUser)
   return (
     <>
       {
@@ -180,7 +180,7 @@ const YourJoinedRooms = ({
                     margin: "5px",
                   }}
                 />
-                {searchUser.map((item: any) => (
+                {searchUser?.map((item: any) => (
                   <div
                     key={item._id}
                     style={{
@@ -208,8 +208,20 @@ const YourJoinedRooms = ({
                             host: user._id,
                             members: [user._id, item._id],
                             user: item,
+                            ...item,
                           });
                         }}
+
+                        // onClick={() => {
+                        //   setShowModal(false);
+                        //   setInfoImageApprovalData(null);
+                        //   onRoomClick({
+                        //     roomId: item?._id,
+                        //     host: user._id,
+                        //     members: [user?._id, item?.members],
+                        //     ...item,
+                        //   });
+                        // }}
                       >
                         <Avatar size={"large"} />
                         <Space

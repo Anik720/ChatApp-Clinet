@@ -64,12 +64,14 @@ export const SocketProvider = ({ children }) => {
         });
         socket.on("rooms", (rooms: any) => {
             let allRooms = JSON.parse(localStorage.getItem('rooms')) 
-            setRooms(rooms);
+        
             if(rooms?.length > 1){
                localStorage.setItem("rooms",JSON.stringify(rooms))
             }
             if(allRooms?.length > 1){
                 setRooms(allRooms);
+            }else{
+                setRooms(rooms);
             }
 
         });
@@ -82,7 +84,7 @@ export const SocketProvider = ({ children }) => {
             // }
             const processedMessages = processMessages(conversation);
             await saveConversations(roomId, processedMessages);
-
+            console.log("processedMessages", processedMessages);
             setInfoImageApprovalData(infoImageApproval)
             // setInfoMessageApprovalData (infoMessageApproval)
             setConversations((prevConversations) => ({
@@ -91,8 +93,10 @@ export const SocketProvider = ({ children }) => {
             }));
         });
         socket.on("newMessage", async ({ conversation, roomId }) => {
+   
             setConversations((prevConversations) => {
                 const updatedConversations = processMessages([...(prevConversations[roomId] || []), conversation]);
+                console.log("new message", updatedConversations);
                 saveConversations(roomId, updatedConversations);
                 return {
                     ...prevConversations,
@@ -136,6 +140,7 @@ export const SocketProvider = ({ children }) => {
         socket.on("notifyMessage", ({ conversation, roomId }) => {
             const audio = new Audio("/notify.mp3");
             audio.play();
+            
             setRooms((prev) => {
                 const room = prev.find((room) => room._id === roomId);
                 if (room) {

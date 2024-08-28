@@ -92,18 +92,6 @@ const ChatLayoutHome = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
-  const showModalHandler = () => {
-    setShowModal(true);
-  };
-
-  const handleOk = () => {
-    setShowModal(false);
-    router.push('/guest-user-message-request-list')
-  };
-
-  const handleCancel = () => {
-    setShowModal(false);
-  };
 
   // useEffect(() => {
   //     if (socket) {
@@ -145,6 +133,13 @@ const ChatLayoutHome = ({ children }) => {
   // }, [socket, user]);
 
   const onRoomClick = (room: any) => {
+    console.log("`148", room);
+    // if(room?.roomId) {
+    //   setConversation([]);
+    //   localStorage.setItem("CurrentRoom",JSON.stringify(room))
+      
+    // }
+
     setConversation([]);
     localStorage.setItem("CurrentRoom",JSON.stringify(room))
     setCurrentRoom(room);
