@@ -63,7 +63,6 @@ export const SocketProvider = ({ children }) => {
             setConversations([]);
         });
         socket.on("rooms", (rooms: any) => {
-            console.log("rooms", rooms);
             let allRooms = JSON.parse(localStorage.getItem('rooms')) 
             setRooms(rooms);
             if(rooms?.length > 1){
@@ -150,7 +149,6 @@ export const SocketProvider = ({ children }) => {
         socket.on("notifyMessageOfImages", ({ roomId,
             senderID,
             recieverId }) => {
-                console.log(153, JSON.parse(localStorage.getItem('CurrentRoom'))._id == roomId)
             setNotifyMessageOfImagesData({ roomId,
                 senderID,
                 recieverId })

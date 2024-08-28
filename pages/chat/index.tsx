@@ -227,8 +227,6 @@ const ChatLayoutHome = ({ children }) => {
     }
   };
 
-
-  console.log(24000, messageApprovalStatus)
   // console.log(241, conversation)
   return (
     <div style={{ boxShadow: "0 0 10px rgba(0,0,0,0.1)" }}>

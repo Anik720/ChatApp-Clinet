@@ -88,6 +88,9 @@ export default function AuthContextProvider({ children }: any) {
             const result = await Fetch.post(API.auth.LOGOUT);
             NotoficationHandler(result.data, "success");
             setIsAuthLoading(false);
+            localStorage.setItem("rooms", JSON.stringify([]))
+            localStorage.setItem("loggedInUser", null)
+            localStorage.setItem("CurrentRoom", null)
             Router.push("/chat");
             window.location.reload();
         } catch (error: any) {

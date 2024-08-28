@@ -7,9 +7,7 @@ export const getRooms = (
 ) => {
     console.log("getRooms");
     socket.on("rooms", (rooms: any) => {
-        console.log("rooms", rooms);
         callback(rooms);
-        console.log("rooms", rooms);
         if (rooms.length > 0 && setCurrentRoom) {
             setCurrentRoom(rooms[0]);
         }
@@ -21,8 +19,6 @@ export const getPublicRooms = (socket: any, callback: (rooms: any) => void) => {
     });
 
     socket && socket.on("publicRooms", (rooms: any) => {
-
-        console.log(25, rooms)
         callback(rooms);
     }
     );
@@ -30,7 +26,6 @@ export const getPublicRooms = (socket: any, callback: (rooms: any) => void) => {
 
 export const getPreviousMessages = (socket: any, callback: (messages: any) => void) => {
     socket && socket.on("preChat", (messages: any) => {
-        console.log("preChat", messages);
         messages.map((message: any) => {
             message.timestamp = moment(message.updated_at).unix();
             return message;

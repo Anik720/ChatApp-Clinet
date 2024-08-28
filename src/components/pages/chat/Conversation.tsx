@@ -78,7 +78,6 @@ const Conversation = ({
     router.push("/image-approval-list");
   };
 
-  console.log(81, currentRoom?.roomId)
 
 
   return (

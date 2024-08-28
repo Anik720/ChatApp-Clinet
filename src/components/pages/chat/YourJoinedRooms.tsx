@@ -108,12 +108,9 @@ const YourJoinedRooms = ({
     //   socket.emit("rooms", res?.data?.rooms);
     //   // setRooms(res?.data?.rooms);
     // }
-    console.log(94, modifiedRooms)
     setRooms(modifiedRooms);
   };
 
-  console.log(111, rooms)
-  const data = [1, 2, 3, 4];
   return (
     <>
       {

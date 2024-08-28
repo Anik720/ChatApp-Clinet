@@ -23,7 +23,6 @@ const Home = () => {
     getDashboardData();
   }, []);
 
-  console.log("dashboardData", dashboardData);
 
   return (
     <div>
