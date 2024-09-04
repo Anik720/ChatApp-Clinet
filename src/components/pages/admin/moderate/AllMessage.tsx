@@ -272,13 +272,13 @@ const AllMessage = () => {
                           size={30}
                           style={{
                             backgroundColor: getColor(
-                              conversation?.from?.name[0].toLowerCase()
+                              conversation?.from?.name &&  conversation?.from?.name[0].toLowerCase()
                             ),
                             borderRadius: "50%",
                             color: "#fff",
                           }}
                         >
-                          {conversation?.from?.name[0]}
+                          {         conversation?.from?.name &&  conversation?.from?.name[0]}
                         </Avatar>
 
                         <Space direction="vertical">

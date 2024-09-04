@@ -1,18 +1,18 @@
 import moment from "moment";
 
-export const getRooms = (
-    socket: any,
-    callback: (rooms: any) => void,
-    setCurrentRoom: (room: any) => void = null,
-) => {
-    console.log("getRooms");
-    socket.on("rooms", (rooms: any) => {
-        callback(rooms);
-        if (rooms.length > 0 && setCurrentRoom) {
-            setCurrentRoom(rooms[0]);
-        }
-    });
-}
+// export const getRooms = (
+//     socket: any,
+//     callback: (rooms: any) => void,
+//     setCurrentRoom: (room: any) => void = null,
+// ) => {
+//     console.log("getRooms");
+//     socket.on("rooms", (rooms: any) => {
+//         callback(rooms);
+//         if (rooms.length > 0 && setCurrentRoom) {
+//             setCurrentRoom(rooms[0]);
+//         }
+//     });
+// }
 export const getPublicRooms = (socket: any, callback: (rooms: any) => void) => {
     socket && socket.emit("publicRooms", {
         type: "publicRooms"

@@ -30,7 +30,8 @@ const processMessages = (messages) => {
 
 export const SocketProvider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(socket.connected);
-    const [rooms, setRooms] = useState([]);
+    let [rooms, setRooms] = useState<any>([]);
+    let [roomsLoading, setRoomsLoading] = useState<any>(true);
     const [roomsCopy, setRoomsCopy] = useState([]);
     const [currentRoom, setCurrentRoom] = useState(null);
     const [conversations, setConversations] = useState({});
@@ -63,15 +64,10 @@ export const SocketProvider = ({ children }) => {
             setConversations([]);
         });
         socket.on("rooms", (rooms: any) => {
-            let allRooms = JSON.parse(localStorage.getItem('rooms')) 
-        
-            if(rooms?.length > 1){
-               localStorage.setItem("rooms",JSON.stringify(rooms))
-            }
-            if(allRooms?.length > 1){
-                setRooms(allRooms);
-            }else{
-                setRooms(rooms);
+            console.log(66, rooms)
+            setRoomsLoading(false);
+            if(rooms.length > 0){
+             setRooms(rooms);
             }
 
         });
@@ -79,21 +75,21 @@ export const SocketProvider = ({ children }) => {
             if(JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.imagesPermission?.senderID) || JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.imagesPermission?.recieverId)){
                 setShowModal(true)
             }
-            // if(JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.messagePermission?.senderID) || JSON.parse(localStorage.getItem('loggedInUser'))?._id ===  JSON.stringify(curreentRoom?.messagePermission?.recieverId)){
-            //     setMessageApprovalStatus(true)
-            // }
             const processedMessages = processMessages(conversation);
             await saveConversations(roomId, processedMessages);
-            console.log("processedMessages", processedMessages);
             setInfoImageApprovalData(infoImageApproval)
-            // setInfoMessageApprovalData (infoMessageApproval)
+
             setConversations((prevConversations) => ({
                 ...prevConversations,
                 [roomId]: processedMessages
             }));
         });
         socket.on("newMessage", async ({ conversation, roomId }) => {
-   
+            let loggedInUser = localStorage.getItem("loggedInUser");
+            if(loggedInUser){
+                socket.emit("allRoomGetTrigger", JSON.parse(loggedInUser));
+            }
+  
             setConversations((prevConversations) => {
                 const updatedConversations = processMessages([...(prevConversations[roomId] || []), conversation]);
                 console.log("new message", updatedConversations);
@@ -118,21 +114,29 @@ export const SocketProvider = ({ children }) => {
 
 
         socket.on("messageApprove",async ({ roomId,senderId, recieverId,room, senderInfo, recieverInfo}) => {
+            console.log(107, "messageApprove")
             setMessageApprovalStatus({
                 status: false,
                 roomId: roomId ,
                 senderId : senderId,
                 recieverId : recieverId
             })
-            if(  JSON.parse(localStorage.getItem('loggedInUser'))?._id ==  recieverId ){
-                let allRooms = JSON.parse(localStorage.getItem('rooms')) 
-
+            let modifiedRooms = []
+           
+            if( JSON.parse(localStorage.getItem('loggedInUser'))?._id ==  recieverId ){
+    
                 room.members = [senderInfo,recieverInfo]
-                let modifiedRooms = [...allRooms, room]
-                socket.emit("rooms", modifiedRooms);
-                // setRooms(modifiedRooms)
+                if(rooms?.find(room => room._id == roomId)){
+                    modifiedRooms  = [...rooms]
+                }else{
+                    modifiedRooms  = [...rooms, room]
+                }
 
             }
+            rooms = modifiedRooms
+            socket.emit("rooms", rooms);
+            socket.emit("mergeRooms", modifiedRooms);
+            // setRooms(rooms);
           
         });
 
@@ -140,6 +144,7 @@ export const SocketProvider = ({ children }) => {
         socket.on("notifyMessage", ({ conversation, roomId }) => {
             const audio = new Audio("/notify.mp3");
             audio.play();
+
             
             setRooms((prev) => {
                 const room = prev.find((room) => room._id === roomId);
@@ -153,11 +158,14 @@ export const SocketProvider = ({ children }) => {
         });
         socket.on("notifyMessageOfImages", ({ roomId,
             senderID,
-            recieverId }) => {
+            recieverId,
+            presentRoom
+        }) => {
+
             setNotifyMessageOfImagesData({ roomId,
                 senderID,
                 recieverId })
-                if(JSON.parse(localStorage.getItem('CurrentRoom'))._id == roomId){
+                if(presentRoom?._id == roomId){
                     if(  JSON.parse(localStorage.getItem('loggedInUser'))?._id ==  senderID || JSON.parse(localStorage.getItem('loggedInUser'))?._id == recieverId){
                         setShowModal(true)
                     }
@@ -227,8 +235,10 @@ export const SocketProvider = ({ children }) => {
             socket.off("setCurrentRoom");
             socket.off("startTyping");
             socket.off("stopTyping");
-            // setInfoImageApprovalData(null)
-            // socket.off("notifyMessageOfImages");
+            setInfoImageApprovalData(null)
+            setRooms([]);
+            setConversations([]);
+            socket.off("notifyMessageOfImages");
         };
     }, []);
 
@@ -282,6 +292,8 @@ export const SocketProvider = ({ children }) => {
                 isConnected,
                 rooms,
                 setRooms,
+                roomsLoading, 
+                setRoomsLoading,
                 joinRoom,
                 leaveRoom,
                 conversations,

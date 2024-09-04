@@ -33,6 +33,7 @@ export default function AuthContextProvider({ children }: any) {
         try {
             const result = await Fetch.post(API.auth.LOGIN, data);
             NotoficationHandler(result.data, "success");
+            localStorage.setItem("authToken", result.data.token);
             setIsAuthLoading(false);
             const { user } = result.data;
             if (user.type === "admin") {
@@ -55,6 +56,7 @@ export default function AuthContextProvider({ children }: any) {
             form && form.resetFields();
             setVisibleForm("login");
             NotoficationHandler(result.data, "success");
+            localStorage.setItem("authToken", result.data.token);
             setIsAuthLoading(false);
             setVisibleForm("login");
         } catch (error: any) {
@@ -79,7 +81,18 @@ export default function AuthContextProvider({ children }: any) {
     };
 
     useEffect(() => {
-        checkAuth();
+        let authToken = localStorage.getItem("authToken");
+
+        // Convert 'null' string to null
+        if (authToken === "null" || authToken === null) {
+            authToken = null;
+        }
+        console.log(91, authToken !== null)
+        if (authToken !== null) {
+            checkAuth();
+        }
+        
+
     }, []);
 
     const logout = async () => {
@@ -91,6 +104,7 @@ export default function AuthContextProvider({ children }: any) {
             localStorage.setItem("rooms", JSON.stringify([]))
             localStorage.setItem("loggedInUser", null)
             localStorage.setItem("CurrentRoom", null)
+            localStorage.setItem("authToken",null);
             Router.push("/chat");
             window.location.reload();
         } catch (error: any) {
